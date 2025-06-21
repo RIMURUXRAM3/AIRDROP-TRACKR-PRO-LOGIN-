@@ -65,5 +65,5 @@ MIT License — bebas untuk digunakan, dimodifikasi, dan dibagikan.
 
 ---
 
-Terima kasih telah menggunakan **RIMURUXRAM AIRDROP TRACKER PRO**!  
+Terima kasih telah menggunakan **RIMURUXRAM AIRDROP TRACKER PRO SANDI**!  
 Semoga aplikasi ini membantu kamu lancar dalam berburu semua peluang airdrop kripto! 🚀✨
