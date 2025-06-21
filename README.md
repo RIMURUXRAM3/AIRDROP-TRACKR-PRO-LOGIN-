@@ -1,4 +1,4 @@
-# AIRDROP-TRACKR-PRO-LOGIN (Diablo x Tensura Edition)
+# AIRDROP-TRACKR-PRO-LOGIN (RIMURUXRAM X DIABLO)
 
 > “Dalam kegelapan, hanya yang terkuat bertahan...”
 
