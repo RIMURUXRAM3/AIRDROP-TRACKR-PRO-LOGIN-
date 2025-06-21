@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airdrop Tracker - App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📸</text></svg>">
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div id="app-screen" class="hidden">
+        <div class="main-container container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+            <header class="text-center mb-8 flex justify-between items-center">
+                <div></div> <!-- Spacer -->
+                <h1 class="text-4xl font-bold text-white">📸 Airdrop Tracker</h1>
+                <button id="logout-btn" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg text-sm">Logout</button>
+            </header>
+            
+            <div class="bg-gray-800 p-6 rounded-2xl shadow-lg mb-8">
+                <h2 id="formTitle" class="text-2xl font-semibold text-white mb-4">Tambah Proyek Baru</h2>
+                <form id="airdropForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-5">
+                    <input type="hidden" id="editIndex">
+                    <input type="text" id="projectName" placeholder="Nama Proyek" class="col-span-1 bg-gray-700 text-white border border-gray-600 rounded-lg p-3" required>
+                    <input type="text" id="ecosystem" placeholder="Ekosistem" class="col-span-1 bg-gray-700 text-white border border-gray-600 rounded-lg p-3" required>
+                    <select id="status" class="col-span-1 bg-gray-700 text-white border border-gray-600 rounded-lg p-3" required>
+                        <option value="To Do">Baru (To Do)</option> <option value="In Progress">Dikerjakan</option> <option value="Done">Selesai</option> <option value="Farmed">Rutin</option> <option value="Snapshot">Snapshot ✅</option>
+                    </select>
+                    <input type="text" id="wallet" placeholder="Wallet" class="col-span-1 bg-gray-700 text-white border border-gray-600 rounded-lg p-3">
+                    <textarea id="tasks" placeholder="Catatan..." class="md:col-span-2 bg-gray-700 text-white border border-gray-600 rounded-lg p-3 h-24"></textarea>
+                    <input type="url" id="link" placeholder="Link Penting" class="md:col-span-2 bg-gray-700 text-white border border-gray-600 rounded-lg p-3">
+                    <div class="md:col-span-2 flex items-center gap-4">
+                        <label for="screenshot" class="cursor-pointer bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded-lg">Pilih Screenshot</label>
+                        <input type="file" id="screenshot" class="hidden" accept="image/*">
+                        <img id="imagePreview" src="" alt="Preview" class="h-12 w-12 object-cover rounded-lg hidden">
+                        <button type="button" id="removeImageBtn" class="text-xs text-red-400 hover:underline hidden">Hapus gambar</button>
+                    </div>
+                    <div id="formButtons" class="md:col-span-2 grid grid-cols-2 gap-4">
+                        <button type="submit" id="submitBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg">Tambah Proyek</button>
+                        <button type="button" id="cancelBtn" class="hidden bg-gray-600 hover:bg-gray-500 text-white py-3 px-4 rounded-lg">Batal Edit</button>
+                    </div>
+                </form>
+            </div>
+            <div>
+                <h2 class="text-2xl font-semibold text-white mb-4">Daftar Garapan</h2>
+                <div id="filter-buttons" class="flex flex-wrap gap-2 mb-4"></div>
+                <div class="overflow-x-auto bg-gray-800 rounded-2xl shadow-lg">
+                    <table id="airdropTable" class="w-full text-sm text-left text-gray-300">
+                        <thead class="text-xs text-gray-300 uppercase bg-gray-700/50">
+                            <tr><th class="px-6 py-3">Proyek</th> <th class="px-6 py-3">Status</th> <th class="px-6 py-3">Wallet</th> <th class="px-6 py-3">Screenshot</th> <th class="px-6 py-3">Catatan</th> <th class="px-6 py-3 text-center">Aksi</th></tr>
+                        </thead>
+                        <tbody id="airdropTableBody"></tbody>
+                    </table>
+                    <div id="emptyState" class="hidden text-center py-16 px-6"></div>
+                </div>
+            </div>
+        </div>
+        <footer class="w-full text-center py-6 mt-4 border-t border-gray-800 text-sm text-gray-500">
+            <p class="mb-2">Copyright &copy; <span id="copyrightYear"></span> by. RIMURUXRAM</p>
+            <a href="https://saweria.co/rimuruxram" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300">Dukung developer di Saweria ☕</a>
+        </footer>
+    </div>
+    
+    <div id="imageModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 hidden" onclick="this.classList.add('hidden')">
+        <img id="modalImage" src="" alt="Full size" class="max-h-[80vh] max-w-[80vw] rounded-lg" onclick="event.stopPropagation()">
+    </div>
+    
+    <!-- Memuat skrip khusus untuk halaman aplikasi -->
+    <script src="app.js"></script>
+</body>
+</html>
