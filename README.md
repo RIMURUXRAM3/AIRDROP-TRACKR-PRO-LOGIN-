@@ -60,7 +60,8 @@ MIT License — bebas untuk digunakan, dimodifikasi, dan dibagikan.
 ## 💬 Quote Motivasi dari Rimuru
 
 > *“Ideals tanpa kekuatan hanyalah mimpi, dan kekuatan tanpa ideals adalah kosong.”*  
-> – Rimuru Tempest (![tensura.fandom.com](https://tensura.fandom.com/wiki/Rimuru_Tempest))
+> – Rimuru Tempest  
+> ![Rimuru Tempest - Diablo Vibe](https://i.pinimg.com/736x/15/74/2f/15742f11b19849a8a389fabc94457981.jpg)
 
 ---
 
