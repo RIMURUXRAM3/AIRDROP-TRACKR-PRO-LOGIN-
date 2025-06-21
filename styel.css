@@ -1,0 +1,33 @@
+/* Menggunakan font Inter dari Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body { 
+    font-family: 'Inter', sans-serif; 
+}
+.hidden { 
+    display: none; 
+}
+
+/* Membuat footer selalu di bawah */
+#app-screen { 
+    min-height: 100vh; 
+    display: flex; 
+    flex-direction: column; 
+}
+.main-container { 
+    flex-grow: 1; 
+}
+
+/* Animasi sederhana untuk transisi */
+.fade-in { 
+    animation: fadeIn 0.5s ease-in-out; 
+}
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(-10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
+/* Style untuk modal gambar */
+#imageModal.hidden { 
+    display: none; 
+}
