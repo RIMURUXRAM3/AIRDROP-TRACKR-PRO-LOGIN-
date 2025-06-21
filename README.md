@@ -1,37 +1,68 @@
-# AIRDROP-TRACKR-PRO-LOGIN (RIMURUXRAM X DIABLO)
 
-> “Dalam kegelapan, hanya yang terkuat bertahan...”
+# 📡 RIMURUXRAM AIRDROP TRACKER PRO
 
 ![Rimuru Tempest - Diablo Style](https://i.pinimg.com/736x/15/74/2f/15742f11b19849a8a389fabc94457981.jpg)
 
-AIRDROP-TRACKR-PRO-LOGIN adalah aplikasi web client-side dengan tema gelap ala Diablo, dipadukan dengan aura Rimuru Tempest dari anime Tensura. Cocok buat kamu yang suka nuansa kelam dan keren sambil berburu airdrop kripto.
+**RIMURUXRAM AIRDROP TRACKER PRO** adalah aplikasi web client-side yang dirancang untuk memudahkanmu memantau dan mengelola berbagai airdrop kripto—langsung dari browser. Dengan desain minimalis dan fitur lengkap, aplikasi ini ideal untuk pemula maupun trader kripto profesional.
 
 ---
 
-## Fitur
+## 🚀 Fitur Utama
 
-- Tema gelap permanen dengan aksen merah dan biru dingin
-- Login lokal aman dengan hash SHA-256
-- Dashboard untuk tambah, edit, dan kelola airdrop
-- Backup dan restore data lewat file JSON
-- Auto logout setelah 10 menit tidak aktif
-- Animasi dan efek keren yang memadukan Diablo dan Tensura
+* **📋 Tambah & Kelola Airdrop**  
+  Input nama proyek, kategori (DeFi/NFT/L1/L2), prioritas, tanggal check-in, dan catatan penting.
 
----
+* **🔄 Sort & Filter Efisien**  
+  Urutkan daftar berdasarkan prioritas atau tanggal—panduan rapi agar gak kelewat airdrop penting.
 
-## Cara Pakai
+* **🎨 Mode Terang & Gelap**  
+  Tampilan responsif yang nyaman digunakan di desktop maupun mobile.
 
-1. Buka aplikasi lewat browser
-2. Masukkan username dan password
-3. Setelah login, kelola airdrop sesukamu
-4. Logout otomatis jika idle 10 menit
+* **💾 Penyimpanan Aman di localStorage**  
+  Semua data disimpan secara lokal tanpa backend—aman dan cepat.
 
----
+* **📁 Impor/Ekspor Data JSON**  
+  Backup atau restore database simpel tanpa repot.
 
-## Lisensi
-
-MIT License — Bebas digunakan dan dimodifikasi.
+* **🔍 Fitur Pencarian Instan**  
+  Temukan airdrop tertarget dalam sekejap di daftar panjang.
 
 ---
 
-Selamat menggunakan AIRDROP-TRACKR-PRO-LOGIN bersama Rimuru Tempest versi Diablo! ⚔️🔥
+## 🛠️ Cara Menggunakan
+
+1. **Jalankan aplikasi** dengan membuka `index.html` di browser.
+2. **Tambahkan airdrop baru** lewat tombol “+ Add New”.
+3. **Gunakan filter atau search** untuk navigasi cepat.
+4. **Update status**, catat tanggal, dan tambahkan notes sesuai perkembangan.
+5. **Jangan lupa backup & restore** data favoritmu lewat Export/Import JSON.
+
+---
+
+## 🤝 Kontribusi
+
+Ingin fitur tambahan atau perbaikan? Kamu bisa:
+
+* Laporkan bug/saran melalui **Issues**
+* Buat **Pull Request** untuk tambahkan fitur, perbaiki UI, atau update tema
+* Tambahkan **dokumentasi** atau **design assets** yang mendukung UX
+
+Semua bentuk kontribusi sangat kami hargai!
+
+---
+
+## 📄 Lisensi
+
+MIT License — bebas untuk digunakan, dimodifikasi, dan dibagikan.
+
+---
+
+## 💬 Quote Motivasi dari Rimuru
+
+> *“Ideals tanpa kekuatan hanyalah mimpi, dan kekuatan tanpa ideals adalah kosong.”*  
+> – Rimuru Tempest (![tensura.fandom.com](https://tensura.fandom.com/wiki/Rimuru_Tempest))
+
+---
+
+Terima kasih telah menggunakan **RIMURUXRAM AIRDROP TRACKER PRO**!  
+Semoga aplikasi ini membantu kamu lancar dalam berburu semua peluang airdrop kripto! 🚀✨
