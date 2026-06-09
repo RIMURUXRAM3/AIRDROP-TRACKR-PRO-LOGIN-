@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- ELEMEN DOM ---
-    const getEl = (id) => document.getElementById(id);
+    const getEl = Shared.getEl;
     const appScreen = getEl('app-screen');
     const logoutBtn = getEl('logout-btn');
     const airdropForm = getEl('airdropForm'), airdropTableBody = getEl('airdropTableBody'),
@@ -12,8 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cancelBtn = getEl('cancelBtn'), editIndexInput = getEl('editIndex');
 
     // --- STATE & DATA ---
-    const DB_KEY = AppUtils.DB_KEY;
-    let appData = JSON.parse(localStorage.getItem(DB_KEY)) || { users: {}, currentUser: null };
+    let appData = Shared.loadAppData(localStorage);
     let currentUser = appData.currentUser;
     let airdrops = [];
     let currentFilter = 'all';
@@ -21,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- AUTH GUARD (PENTING!) ---
     if (!currentUser) {
-        window.location.href = 'index.html';
+        Shared.navigateTo('index.html');
         return;
     }
     appScreen.classList.remove('hidden');
@@ -30,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- FUNGSI ---
     const saveUserAirdrops = () => {
         AppUtils.saveUserAirdrops(appData, airdrops);
-        localStorage.setItem(DB_KEY, JSON.stringify(appData));
+        Shared.saveAppData(localStorage, appData);
     };
 
     const loadUserAirdrops = () => {
@@ -39,8 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const handleLogout = () => {
         AppUtils.performLogout(appData);
-        localStorage.setItem(DB_KEY, JSON.stringify(appData));
-        window.location.href = 'index.html';
+        Shared.saveAppData(localStorage, appData);
+        Shared.navigateTo('index.html');
     };
 
     const getStatusBadge = (status) => AppUtils.getStatusBadge(status);

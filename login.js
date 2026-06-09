@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- ELEMEN DOM ---
-    const getEl = (id) => document.getElementById(id);
+    const getEl = Shared.getEl;
     const loginForm = getEl('login-form');
     const registerForm = getEl('register-form');
     const tabLogin = getEl('tab-login');
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Jika user sudah login, langsung redirect ke halaman aplikasi
     if (appData.currentUser) {
-        window.location.href = 'app.html';
+        Shared.navigateTo('app.html');
         return; // Hentikan eksekusi skrip lebih lanjut
     }
 
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (result.success) {
             appData.currentUser = username;
             LoginUtils.saveAppData(localStorage, appData);
-            window.location.href = 'app.html'; // Redirect ke halaman aplikasi
+            Shared.navigateTo('app.html');
         } else {
             authError.textContent = result.error;
         }
