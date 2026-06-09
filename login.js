@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- ELEMEN DOM ---
-    const getEl = (id) => document.getElementById(id);
     const loginForm = getEl('login-form');
     const registerForm = getEl('register-form');
     const tabLogin = getEl('tab-login');
@@ -8,17 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const authError = getEl('auth-error');
 
     // --- STATE & DATA MANAGEMENT ---
-    const DB_KEY = 'airdropTrackerApp';
-    let appData = JSON.parse(localStorage.getItem(DB_KEY)) || { users: {}, currentUser: null };
+    let appData = loadAppData();
 
     // Jika user sudah login, langsung redirect ke halaman aplikasi
     if (appData.currentUser) {
-        window.location.href = 'app.html';
+        navigateTo('app.html');
         return; // Hentikan eksekusi skrip lebih lanjut
     }
-
-    const saveAppData = () => localStorage.setItem(DB_KEY, JSON.stringify(appData));
-    const hashPassword = (password) => btoa(password); // Pengamanan sederhana
 
     const handleRegister = (e) => {
         e.preventDefault();
@@ -48,8 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const user = appData.users[username];
         if (user && user.password === hashPassword(password)) {
             appData.currentUser = username;
-            saveAppData();
-            window.location.href = 'app.html'; // Redirect ke halaman aplikasi
+            saveAppData(appData);
+            navigateTo('app.html');
         } else {
             authError.textContent = 'Username atau password salah.';
         }
