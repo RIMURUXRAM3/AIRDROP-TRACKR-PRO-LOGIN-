@@ -257,6 +257,34 @@ describe('AppUtils', () => {
   });
 
   // ---------------------------------------------------------------
+  // escapeHtml
+  // ---------------------------------------------------------------
+  describe('escapeHtml', () => {
+    it('should escape angle brackets', () => {
+      expect(AppUtils.escapeHtml('<script>alert("xss")</script>')).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+    });
+
+    it('should escape ampersands', () => {
+      expect(AppUtils.escapeHtml('a & b')).toBe('a &amp; b');
+    });
+
+    it('should escape quotes', () => {
+      expect(AppUtils.escapeHtml('"hello" & \'world\'')).toBe('&quot;hello&quot; &amp; &#039;world&#039;');
+    });
+
+    it('should handle empty or null input', () => {
+      expect(AppUtils.escapeHtml('')).toBe('');
+      expect(AppUtils.escapeHtml(null)).toBe('');
+      expect(AppUtils.escapeHtml(undefined)).toBe('');
+    });
+
+    it('should leave safe strings unchanged', () => {
+      expect(AppUtils.escapeHtml('To Do')).toBe('To Do');
+      expect(AppUtils.escapeHtml('My Project')).toBe('My Project');
+    });
+  });
+
+  // ---------------------------------------------------------------
   // Constants
   // ---------------------------------------------------------------
   describe('constants', () => {

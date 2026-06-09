@@ -7,19 +7,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabRegister = getEl('tab-register');
     const authError = getEl('auth-error');
 
+    // Guard: abort if critical DOM elements are missing
+    if (!loginForm || !registerForm || !tabLogin || !tabRegister || !authError) {
+        console.error('[login] Critical DOM elements missing — cannot initialize login page.');
+        return;
+    }
+
     // --- STATE & DATA MANAGEMENT ---
     let appData = LoginUtils.loadAppData(localStorage);
 
     // Jika user sudah login, langsung redirect ke halaman aplikasi
     if (appData.currentUser) {
         window.location.href = 'app.html';
-        return; // Hentikan eksekusi skrip lebih lanjut
+        return;
     }
 
     const handleRegister = (e) => {
         e.preventDefault();
-        const username = getEl('register-username').value.trim().toLowerCase();
-        const password = getEl('register-password').value;
+        const usernameEl = getEl('register-username');
+        const passwordEl = getEl('register-password');
+        if (!usernameEl || !passwordEl) {
+            authError.textContent = 'Elemen form registrasi tidak ditemukan.';
+            return;
+        }
+        const username = usernameEl.value.trim().toLowerCase();
+        const password = passwordEl.value;
         authError.textContent = '';
 
         const result = LoginUtils.registerUser(appData, username, password);
@@ -28,20 +40,28 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        handleLogin(e, username, password); // Auto-login setelah register
+        // Persist first, then auto-login — abort if save fails
+        if (!LoginUtils.saveAppData(localStorage, appData)) {
+            authError.textContent = 'Gagal menyimpan data. Penyimpanan lokal mungkin penuh.';
+            return;
+        }
+        handleLogin(e, username, password);
     };
 
     const handleLogin = (e, prefilledUser = null, prefilledPass = null) => {
         e.preventDefault();
-        const username = prefilledUser || getEl('login-username').value.trim().toLowerCase();
-        const password = prefilledPass || getEl('login-password').value;
+        const username = prefilledUser || (getEl('login-username') ? getEl('login-username').value.trim().toLowerCase() : '');
+        const password = prefilledPass || (getEl('login-password') ? getEl('login-password').value : '');
         authError.textContent = '';
 
         const result = LoginUtils.authenticateUser(appData, username, password);
         if (result.success) {
             appData.currentUser = username;
-            LoginUtils.saveAppData(localStorage, appData);
-            window.location.href = 'app.html'; // Redirect ke halaman aplikasi
+            if (!LoginUtils.saveAppData(localStorage, appData)) {
+                authError.textContent = 'Gagal menyimpan data. Penyimpanan lokal mungkin penuh.';
+                return;
+            }
+            window.location.href = 'app.html';
         } else {
             authError.textContent = result.error;
         }
