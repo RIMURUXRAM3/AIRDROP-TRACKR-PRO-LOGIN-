@@ -8,8 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const authError = getEl('auth-error');
 
     // --- STATE & DATA MANAGEMENT ---
-    const DB_KEY = 'airdropTrackerApp';
-    let appData = JSON.parse(localStorage.getItem(DB_KEY)) || { users: {}, currentUser: null };
+    let appData = LoginUtils.loadAppData(localStorage);
 
     // Jika user sudah login, langsung redirect ke halaman aplikasi
     if (appData.currentUser) {
@@ -17,25 +16,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return; // Hentikan eksekusi skrip lebih lanjut
     }
 
-    const saveAppData = () => localStorage.setItem(DB_KEY, JSON.stringify(appData));
-    const hashPassword = (password) => btoa(password); // Pengamanan sederhana
-
     const handleRegister = (e) => {
         e.preventDefault();
         const username = getEl('register-username').value.trim().toLowerCase();
         const password = getEl('register-password').value;
         authError.textContent = '';
 
-        if (!username || !password) {
-            authError.textContent = 'Username dan password tidak boleh kosong.';
-            return;
-        }
-        if (appData.users[username]) {
-            authError.textContent = 'Username sudah digunakan.';
+        const result = LoginUtils.registerUser(appData, username, password);
+        if (!result.success) {
+            authError.textContent = result.error;
             return;
         }
 
-        appData.users[username] = { password: hashPassword(password), airdrops: [] };
         handleLogin(e, username, password); // Auto-login setelah register
     };
 
@@ -45,13 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = prefilledPass || getEl('login-password').value;
         authError.textContent = '';
 
-        const user = appData.users[username];
-        if (user && user.password === hashPassword(password)) {
+        const result = LoginUtils.authenticateUser(appData, username, password);
+        if (result.success) {
             appData.currentUser = username;
-            saveAppData();
+            LoginUtils.saveAppData(localStorage, appData);
             window.location.href = 'app.html'; // Redirect ke halaman aplikasi
         } else {
-            authError.textContent = 'Username atau password salah.';
+            authError.textContent = result.error;
         }
     };
 
