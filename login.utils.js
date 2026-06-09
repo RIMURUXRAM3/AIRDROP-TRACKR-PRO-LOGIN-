@@ -1,11 +1,11 @@
 (function (root, factory) {
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = factory();
+    module.exports = factory(require('./shared'));
   } else {
-    root.LoginUtils = factory();
+    root.LoginUtils = factory(root.Shared);
   }
-})(typeof window !== 'undefined' ? window : this, function () {
-  var DB_KEY = 'airdropTrackerApp';
+})(typeof window !== 'undefined' ? window : this, function (Shared) {
+  var DB_KEY = Shared.DB_KEY;
 
   /**
    * Hash a password using base64 encoding.
@@ -23,12 +23,7 @@
    * @returns {{ users: Object, currentUser: string|null }}
    */
   function loadAppData(storage) {
-    try {
-      var raw = storage.getItem(DB_KEY);
-      return raw ? JSON.parse(raw) : { users: {}, currentUser: null };
-    } catch (_e) {
-      return { users: {}, currentUser: null };
-    }
+    return Shared.loadAppData(storage);
   }
 
   /**
@@ -37,7 +32,7 @@
    * @param {{ users: Object, currentUser: string|null }} appData
    */
   function saveAppData(storage, appData) {
-    storage.setItem(DB_KEY, JSON.stringify(appData));
+    Shared.saveAppData(storage, appData);
   }
 
   /**
