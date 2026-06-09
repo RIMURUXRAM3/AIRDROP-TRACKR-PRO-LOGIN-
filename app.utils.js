@@ -18,6 +18,17 @@
   var ALL_STATUSES = ['all', 'To Do', 'In Progress', 'Done', 'Farmed', 'Snapshot'];
 
   /**
+   * Escape a string for safe insertion into HTML.
+   * @param {string} str
+   * @returns {string}
+   */
+  function escapeHtml(str) {
+    var text = String(str || '');
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+               .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  }
+
+  /**
    * Return an HTML badge string for a given status.
    * @param {string} status
    * @returns {string}
@@ -25,7 +36,7 @@
   function getStatusBadge(status) {
     var cls = STATUS_STYLES[status] || 'bg-gray-700 text-gray-300';
     return '<span class="px-2.5 py-1 text-xs font-medium rounded-full inline-block ' +
-      cls + '">' + status + '</span>';
+      cls + '">' + escapeHtml(status) + '</span>';
   }
 
   /**
@@ -121,6 +132,7 @@
     DB_KEY: DB_KEY,
     STATUS_STYLES: STATUS_STYLES,
     ALL_STATUSES: ALL_STATUSES,
+    escapeHtml: escapeHtml,
     getStatusBadge: getStatusBadge,
     filterAirdrops: filterAirdrops,
     createAirdropData: createAirdropData,

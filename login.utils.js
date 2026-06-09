@@ -25,8 +25,13 @@
   function loadAppData(storage) {
     try {
       var raw = storage.getItem(DB_KEY);
-      return raw ? JSON.parse(raw) : { users: {}, currentUser: null };
-    } catch (_e) {
+      if (raw === null) return { users: {}, currentUser: null };
+      var parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object' && parsed.users) return parsed;
+      console.warn('[LoginUtils] Stored data has unexpected shape — resetting to defaults.');
+      return { users: {}, currentUser: null };
+    } catch (err) {
+      console.error('[LoginUtils] Failed to parse stored data — resetting to defaults.', err);
       return { users: {}, currentUser: null };
     }
   }
@@ -37,7 +42,13 @@
    * @param {{ users: Object, currentUser: string|null }} appData
    */
   function saveAppData(storage, appData) {
-    storage.setItem(DB_KEY, JSON.stringify(appData));
+    try {
+      storage.setItem(DB_KEY, JSON.stringify(appData));
+      return true;
+    } catch (err) {
+      console.error('[LoginUtils] Failed to save data to localStorage.', err);
+      return false;
+    }
   }
 
   /**

@@ -44,6 +44,11 @@ describe('LoginUtils', () => {
       expect(LoginUtils.loadAppData(storage)).toEqual({ users: {}, currentUser: null });
     });
 
+    it('should return default data when stored object has no users key', () => {
+      const storage = { getItem: jest.fn().mockReturnValue(JSON.stringify({ foo: 'bar' })) };
+      expect(LoginUtils.loadAppData(storage)).toEqual({ users: {}, currentUser: null });
+    });
+
     it('should call getItem with the correct key', () => {
       const storage = { getItem: jest.fn().mockReturnValue(null) };
       LoginUtils.loadAppData(storage);
@@ -68,6 +73,16 @@ describe('LoginUtils', () => {
       LoginUtils.saveAppData(storage, data);
       const saved = JSON.parse(storage.setItem.mock.calls[0][1]);
       expect(saved.users.bob.airdrops).toEqual([1]);
+    });
+
+    it('should return true on success', () => {
+      const storage = { setItem: jest.fn() };
+      expect(LoginUtils.saveAppData(storage, { users: {} })).toBe(true);
+    });
+
+    it('should return false when storage throws', () => {
+      const storage = { setItem: jest.fn(() => { throw new Error('QuotaExceeded'); }) };
+      expect(LoginUtils.saveAppData(storage, { users: {} })).toBe(false);
     });
   });
 
