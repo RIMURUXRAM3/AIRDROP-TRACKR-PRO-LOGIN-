@@ -13,35 +13,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Jika user sudah login, langsung redirect ke halaman aplikasi
     if (appData.currentUser) {
         window.location.href = 'app.html';
-        return; // Hentikan eksekusi skrip lebih lanjut
+        return;
     }
 
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         const username = getEl('register-username').value.trim().toLowerCase();
         const password = getEl('register-password').value;
         authError.textContent = '';
 
-        const result = LoginUtils.registerUser(appData, username, password);
+        const result = await LoginUtils.registerUser(appData, username, password);
         if (!result.success) {
             authError.textContent = result.error;
             return;
         }
 
-        handleLogin(e, username, password); // Auto-login setelah register
+        await handleLogin(e, username, password);
     };
 
-    const handleLogin = (e, prefilledUser = null, prefilledPass = null) => {
+    const handleLogin = async (e, prefilledUser = null, prefilledPass = null) => {
         e.preventDefault();
         const username = prefilledUser || getEl('login-username').value.trim().toLowerCase();
         const password = prefilledPass || getEl('login-password').value;
         authError.textContent = '';
 
-        const result = LoginUtils.authenticateUser(appData, username, password);
+        const result = await LoginUtils.authenticateUser(appData, username, password);
         if (result.success) {
             appData.currentUser = username;
             LoginUtils.saveAppData(localStorage, appData);
-            window.location.href = 'app.html'; // Redirect ke halaman aplikasi
+            window.location.href = 'app.html';
         } else {
             authError.textContent = result.error;
         }
