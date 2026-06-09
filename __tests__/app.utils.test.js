@@ -2,6 +2,91 @@ const AppUtils = require('../app.utils');
 
 describe('AppUtils', () => {
   // ---------------------------------------------------------------
+  // escapeHTML
+  // ---------------------------------------------------------------
+  describe('escapeHTML', () => {
+    it('should escape HTML special characters', () => {
+      expect(AppUtils.escapeHTML('<script>alert("xss")</script>')).toBe(
+        '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
+      );
+    });
+
+    it('should escape ampersands', () => {
+      expect(AppUtils.escapeHTML('a & b')).toBe('a &amp; b');
+    });
+
+    it('should escape single quotes', () => {
+      expect(AppUtils.escapeHTML("it's")).toBe('it&#039;s');
+    });
+
+    it('should return empty string for falsy input', () => {
+      expect(AppUtils.escapeHTML('')).toBe('');
+      expect(AppUtils.escapeHTML(null)).toBe('');
+      expect(AppUtils.escapeHTML(undefined)).toBe('');
+    });
+
+    it('should not double-escape', () => {
+      expect(AppUtils.escapeHTML('&amp;')).toBe('&amp;amp;');
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // sanitizeURL
+  // ---------------------------------------------------------------
+  describe('sanitizeURL', () => {
+    it('should allow http URLs', () => {
+      expect(AppUtils.sanitizeURL('http://example.com')).toBe('http://example.com/');
+    });
+
+    it('should allow https URLs', () => {
+      expect(AppUtils.sanitizeURL('https://example.com/path')).toBe('https://example.com/path');
+    });
+
+    it('should reject javascript: URLs', () => {
+      expect(AppUtils.sanitizeURL('javascript:alert(1)')).toBe('');
+    });
+
+    it('should reject data: URLs', () => {
+      expect(AppUtils.sanitizeURL('data:text/html,<script>alert(1)</script>')).toBe('');
+    });
+
+    it('should return empty for invalid URLs', () => {
+      expect(AppUtils.sanitizeURL('not a url')).toBe('');
+    });
+
+    it('should return empty for empty input', () => {
+      expect(AppUtils.sanitizeURL('')).toBe('');
+      expect(AppUtils.sanitizeURL(null)).toBe('');
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // isValidBase64Image
+  // ---------------------------------------------------------------
+  describe('isValidBase64Image', () => {
+    it('should accept valid PNG data URI', () => {
+      expect(AppUtils.isValidBase64Image('data:image/png;base64,iVBORw0KGgo=')).toBe(true);
+    });
+
+    it('should accept valid JPEG data URI', () => {
+      expect(AppUtils.isValidBase64Image('data:image/jpeg;base64,/9j/4AAQ=')).toBe(true);
+    });
+
+    it('should reject non-image data URI', () => {
+      expect(AppUtils.isValidBase64Image('data:text/html;base64,PHNjcmlwdD4=')).toBe(false);
+    });
+
+    it('should reject empty input', () => {
+      expect(AppUtils.isValidBase64Image('')).toBe(false);
+      expect(AppUtils.isValidBase64Image(null)).toBe(false);
+    });
+
+    it('should reject plain text', () => {
+      expect(AppUtils.isValidBase64Image('hello world')).toBe(false);
+    });
+  });
+
+  // ---------------------------------------------------------------
   // getStatusBadge
   // ---------------------------------------------------------------
   describe('getStatusBadge', () => {
@@ -37,6 +122,12 @@ describe('AppUtils', () => {
       const badge = AppUtils.getStatusBadge('Unknown');
       expect(badge).toContain('bg-gray-700');
       expect(badge).toContain('>Unknown</span>');
+    });
+
+    it('should escape HTML in status text', () => {
+      const badge = AppUtils.getStatusBadge('<script>');
+      expect(badge).toContain('&lt;script&gt;');
+      expect(badge).not.toContain('<script>');
     });
 
     it('should always wrap in a <span>', () => {
@@ -104,45 +195,63 @@ describe('AppUtils', () => {
         screenshot: 'base64data'
       };
       const result = AppUtils.createAirdropData(values, null);
-      expect(result.name).toBe('My Project');
-      expect(result.ecosystem).toBe('Ethereum');
-      expect(result.status).toBe('In Progress');
-      expect(result.wallet).toBe('0x123');
-      expect(result.tasks).toBe('some tasks');
-      expect(result.link).toBe('https://example.com');
-      expect(result.screenshot).toBe('base64data');
-      expect(typeof result.id).toBe('number');
+      expect(result.error).toBe('');
+      expect(result.data.name).toBe('My Project');
+      expect(result.data.ecosystem).toBe('Ethereum');
+      expect(result.data.status).toBe('In Progress');
+      expect(result.data.wallet).toBe('0x123');
+      expect(result.data.tasks).toBe('some tasks');
+      expect(result.data.link).toBe('https://example.com/');
+      expect(result.data.screenshot).toBe('base64data');
+      expect(typeof result.data.id).toBe('number');
     });
 
     it('should use existingId when provided', () => {
-      const result = AppUtils.createAirdropData({ name: 'A' }, 42);
-      expect(result.id).toBe(42);
+      const result = AppUtils.createAirdropData({ name: 'A', link: '' }, 42);
+      expect(result.data.id).toBe(42);
     });
 
     it('should generate a new id when existingId is null', () => {
       const before = Date.now();
-      const result = AppUtils.createAirdropData({ name: 'A' }, null);
-      expect(result.id).toBeGreaterThanOrEqual(before);
+      const result = AppUtils.createAirdropData({ name: 'A', link: '' }, null);
+      expect(result.data.id).toBeGreaterThanOrEqual(before);
     });
 
     it('should default status to "To Do"', () => {
-      const result = AppUtils.createAirdropData({}, null);
-      expect(result.status).toBe('To Do');
+      const result = AppUtils.createAirdropData({ link: '' }, null);
+      expect(result.data.status).toBe('To Do');
     });
 
     it('should handle undefined fields gracefully', () => {
-      const result = AppUtils.createAirdropData({}, null);
-      expect(result.name).toBe('');
-      expect(result.ecosystem).toBe('');
-      expect(result.wallet).toBe('');
-      expect(result.tasks).toBe('');
-      expect(result.link).toBe('');
-      expect(result.screenshot).toBe('');
+      const result = AppUtils.createAirdropData({ link: '' }, null);
+      expect(result.data.name).toBe('');
+      expect(result.data.ecosystem).toBe('');
+      expect(result.data.wallet).toBe('');
+      expect(result.data.tasks).toBe('');
+      expect(result.data.link).toBe('');
+      expect(result.data.screenshot).toBe('');
     });
 
     it('should preserve existingId 0', () => {
-      const result = AppUtils.createAirdropData({ name: 'X' }, 0);
-      expect(result.id).toBe(0);
+      const result = AppUtils.createAirdropData({ name: 'X', link: '' }, 0);
+      expect(result.data.id).toBe(0);
+    });
+
+    it('should reject names longer than 200 chars', () => {
+      const result = AppUtils.createAirdropData({ name: 'a'.repeat(201), link: '' }, null);
+      expect(result.data).toBeNull();
+      expect(result.error).toContain('200');
+    });
+
+    it('should reject invalid URLs', () => {
+      const result = AppUtils.createAirdropData({ name: 'A', link: 'javascript:alert(1)' }, null);
+      expect(result.data).toBeNull();
+      expect(result.error).toContain('URL');
+    });
+
+    it('should sanitize valid URLs', () => {
+      const result = AppUtils.createAirdropData({ name: 'A', link: 'https://example.com' }, null);
+      expect(result.data.link).toBe('https://example.com/');
     });
   });
 

@@ -18,14 +18,51 @@
   var ALL_STATUSES = ['all', 'To Do', 'In Progress', 'Done', 'Farmed', 'Snapshot'];
 
   /**
-   * Return an HTML badge string for a given status.
+   * Escape a string for safe HTML insertion.
+   * @param {string} str
+   * @returns {string}
+   */
+  function escapeHTML(str) {
+    if (!str) return '';
+    var map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return String(str).replace(/[&<>"']/g, function (c) { return map[c]; });
+  }
+
+  /**
+   * Sanitize a URL — only allow http: and https: protocols.
+   * @param {string} url
+   * @returns {string} sanitized URL or empty string
+   */
+  function sanitizeURL(url) {
+    if (!url) return '';
+    try {
+      var parsed = new URL(url);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        return parsed.href;
+      }
+    } catch (e) { /* invalid URL */ }
+    return '';
+  }
+
+  /**
+   * Validate that a string is a valid base64 data-URI image.
+   * @param {string} str
+   * @returns {boolean}
+   */
+  function isValidBase64Image(str) {
+    if (!str) return false;
+    return /^data:image\/(png|jpeg|jpg|gif|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(str);
+  }
+
+  /**
+   * Return an HTML badge string for a given status (XSS-safe).
    * @param {string} status
    * @returns {string}
    */
   function getStatusBadge(status) {
     var cls = STATUS_STYLES[status] || 'bg-gray-700 text-gray-300';
     return '<span class="px-2.5 py-1 text-xs font-medium rounded-full inline-block ' +
-      cls + '">' + status + '</span>';
+      cls + '">' + escapeHTML(status) + '</span>';
   }
 
   /**
@@ -40,21 +77,37 @@
   }
 
   /**
-   * Build an airdrop data object from form values.
+   * Build an airdrop data object from form values with validation.
    * @param {{ name: string, ecosystem: string, status: string, wallet: string, tasks: string, link: string, screenshot: string }} values
    * @param {number|null} existingId – if editing, pass the existing id; otherwise null
-   * @returns {Object}
+   * @returns {{ data: Object|null, error: string }}
    */
   function createAirdropData(values, existingId) {
+    var name = (values.name || '').trim();
+    var ecosystem = (values.ecosystem || '').trim();
+    var link = (values.link || '').trim();
+
+    if (name.length > 200 || ecosystem.length > 200) {
+      return { data: null, error: 'Nama proyek dan ekosistem maksimal 200 karakter.' };
+    }
+
+    var safeLink = link ? sanitizeURL(link) : '';
+    if (link && !safeLink) {
+      return { data: null, error: 'URL tidak valid. Gunakan http:// atau https://' };
+    }
+
     return {
-      id: existingId != null ? existingId : Date.now(),
-      name: (values.name || '').trim(),
-      ecosystem: (values.ecosystem || '').trim(),
-      status: values.status || 'To Do',
-      wallet: (values.wallet || '').trim(),
-      tasks: (values.tasks || '').trim(),
-      link: (values.link || '').trim(),
-      screenshot: values.screenshot || ''
+      data: {
+        id: existingId != null ? existingId : Date.now(),
+        name: name,
+        ecosystem: ecosystem,
+        status: values.status || 'To Do',
+        wallet: (values.wallet || '').trim(),
+        tasks: (values.tasks || '').trim(),
+        link: safeLink,
+        screenshot: values.screenshot || ''
+      },
+      error: ''
     };
   }
 
@@ -121,6 +174,9 @@
     DB_KEY: DB_KEY,
     STATUS_STYLES: STATUS_STYLES,
     ALL_STATUSES: ALL_STATUSES,
+    escapeHTML: escapeHTML,
+    sanitizeURL: sanitizeURL,
+    isValidBase64Image: isValidBase64Image,
     getStatusBadge: getStatusBadge,
     filterAirdrops: filterAirdrops,
     createAirdropData: createAirdropData,

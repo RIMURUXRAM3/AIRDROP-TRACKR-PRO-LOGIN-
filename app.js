@@ -44,19 +44,109 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getStatusBadge = (status) => AppUtils.getStatusBadge(status);
-    const renderAirdrops = () => {airdropTableBody.innerHTML = ''; const filtered = AppUtils.filterAirdrops(airdrops, currentFilter); emptyState.classList.toggle('hidden', airdrops.length > 0); if (airdrops.length === 0) { emptyState.innerHTML = `<svg class="mx-auto h-12 w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2z"/></svg><h3 class="mt-2 text-lg font-medium text-white">Belum ada proyek</h3><p class="mt-1 text-sm text-gray-400">Mulai lacak dengan menambahkan proyek baru di atas.</p>`;} if (filtered.length === 0 && airdrops.length > 0) { airdropTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">Tidak ada proyek dengan status "${currentFilter}".</td></tr>`; } filtered.forEach((airdrop) => { const index = airdrops.findIndex(a => a.id === airdrop.id); const row = document.createElement('tr'); row.className = 'bg-gray-800 border-b border-gray-700 hover:bg-gray-700/50'; row.innerHTML = `<td class="px-6 py-4 font-medium text-white whitespace-nowrap">${airdrop.name} <br> <span class="text-xs text-gray-400">${airdrop.ecosystem}</span>${airdrop.link ? `<a href="${airdrop.link}" target="_blank" class="text-blue-400 hover:underline text-xs block">Visit</a>` : ''}</td><td class="px-6 py-4">${getStatusBadge(airdrop.status)}</td><td class="px-6 py-4">${airdrop.wallet}</td><td class="px-6 py-4">${airdrop.screenshot ? `<img src="${airdrop.screenshot}" class="h-10 w-10 object-cover rounded-md cursor-pointer" onclick="showModal('${airdrop.screenshot}')">` : '<span class="text-gray-500 text-xs">-</span>'}</td><td class="px-6 py-4 text-gray-400 max-w-xs whitespace-pre-wrap break-words text-xs">${airdrop.tasks}</td><td class="px-6 py-4 text-center"><button class="edit-btn text-yellow-400 hover:text-yellow-300 mr-3" data-index="${index}">Edit</button><button class="delete-btn text-red-400 hover:text-red-300" data-index="${index}">Hapus</button></td>`; airdropTableBody.appendChild(row); }); };
-    const renderFilterButtons = () => {filterButtonsContainer.innerHTML = AppUtils.ALL_STATUSES.map(s => `<button class="filter-btn ${s === 'all' ? 'active bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-300'} py-1 px-3 rounded-full text-sm" data-filter="${s}">${s === 'all' ? 'Semua' : s}</button>`).join('');};
-    window.showModal = (base64) => {modalImage.src = base64; imageModal.classList.remove('hidden');};
-    const resetForm = () => {airdropForm.reset(); editIndexInput.value = ''; screenshotBase64 = ''; imagePreview.classList.add('hidden'); removeImageBtn.classList.add('hidden'); formTitle.textContent = 'Tambah Proyek Baru'; submitBtn.textContent = 'Tambah Proyek'; cancelBtn.classList.add('hidden');};
-    const startEdit = (index) => {const airdrop = airdrops[index]; editIndexInput.value = index; getEl('projectName').value = airdrop.name; getEl('ecosystem').value = airdrop.ecosystem; getEl('status').value = airdrop.status; getEl('wallet').value = airdrop.wallet; getEl('tasks').value = airdrop.tasks; getEl('link').value = airdrop.link; screenshotBase64 = airdrop.screenshot || ''; if (screenshotBase64) { imagePreview.src = screenshotBase64; imagePreview.classList.remove('hidden'); removeImageBtn.classList.remove('hidden'); } else { imagePreview.classList.add('hidden'); removeImageBtn.classList.add('hidden'); } formTitle.textContent = 'Edit Proyek'; submitBtn.textContent = 'Simpan Perubahan'; cancelBtn.classList.remove('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' });};
+
+    const renderAirdrops = () => {
+        airdropTableBody.innerHTML = '';
+        const filtered = AppUtils.filterAirdrops(airdrops, currentFilter);
+
+        emptyState.classList.toggle('hidden', airdrops.length > 0);
+        if (airdrops.length === 0) {
+            emptyState.innerHTML = `<svg class="mx-auto h-12 w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2z"/></svg><h3 class="mt-2 text-lg font-medium text-white">Belum ada proyek</h3><p class="mt-1 text-sm text-gray-400">Mulai lacak dengan menambahkan proyek baru di atas.</p>`;
+        }
+
+        if (filtered.length === 0 && airdrops.length > 0) {
+            const safeFilter = AppUtils.escapeHTML(currentFilter);
+            airdropTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">Tidak ada proyek dengan status "${safeFilter}".</td></tr>`;
+        }
+
+        filtered.forEach((airdrop) => {
+            const index = airdrops.findIndex(a => a.id === airdrop.id);
+            const row = document.createElement('tr');
+            row.className = 'bg-gray-800 border-b border-gray-700 hover:bg-gray-700/50';
+
+            const safeName = AppUtils.escapeHTML(airdrop.name);
+            const safeEcosystem = AppUtils.escapeHTML(airdrop.ecosystem);
+            const safeWallet = AppUtils.escapeHTML(airdrop.wallet);
+            const safeTasks = AppUtils.escapeHTML(airdrop.tasks);
+            const safeLink = AppUtils.sanitizeURL(airdrop.link);
+            const safeScreenshot = AppUtils.isValidBase64Image(airdrop.screenshot) ? airdrop.screenshot : '';
+
+            const linkHTML = safeLink
+                ? `<a href="${safeLink}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline text-xs block">Visit</a>`
+                : '';
+            const screenshotHTML = safeScreenshot
+                ? `<img src="${safeScreenshot}" class="h-10 w-10 object-cover rounded-md cursor-pointer screenshot-thumb" data-index="${index}">`
+                : '<span class="text-gray-500 text-xs">-</span>';
+
+            row.innerHTML = `<td class="px-6 py-4 font-medium text-white whitespace-nowrap">${safeName} <br> <span class="text-xs text-gray-400">${safeEcosystem}</span>${linkHTML}</td><td class="px-6 py-4">${getStatusBadge(airdrop.status)}</td><td class="px-6 py-4">${safeWallet}</td><td class="px-6 py-4">${screenshotHTML}</td><td class="px-6 py-4 text-gray-400 max-w-xs whitespace-pre-wrap break-words text-xs">${safeTasks}</td><td class="px-6 py-4 text-center"><button class="edit-btn text-yellow-400 hover:text-yellow-300 mr-3" data-index="${index}">Edit</button><button class="delete-btn text-red-400 hover:text-red-300" data-index="${index}">Hapus</button></td>`;
+            airdropTableBody.appendChild(row);
+        });
+    };
+
+    const renderFilterButtons = () => {
+        filterButtonsContainer.innerHTML = AppUtils.ALL_STATUSES.map(s =>
+            `<button class="filter-btn ${s === 'all' ? 'active bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-300'} py-1 px-3 rounded-full text-sm" data-filter="${AppUtils.escapeHTML(s)}">${s === 'all' ? 'Semua' : AppUtils.escapeHTML(s)}</button>`
+        ).join('');
+    };
+
+    const showModal = (base64) => {
+        if (AppUtils.isValidBase64Image(base64)) {
+            modalImage.src = base64;
+            imageModal.classList.remove('hidden');
+        }
+    };
+
+    imageModal.addEventListener('click', (e) => {
+        if (e.target === imageModal) {
+            imageModal.classList.add('hidden');
+        }
+    });
+
+    const resetForm = () => {
+        airdropForm.reset();
+        editIndexInput.value = '';
+        screenshotBase64 = '';
+        imagePreview.classList.add('hidden');
+        removeImageBtn.classList.add('hidden');
+        formTitle.textContent = 'Tambah Proyek Baru';
+        submitBtn.textContent = 'Tambah Proyek';
+        cancelBtn.classList.add('hidden');
+    };
+
+    const startEdit = (index) => {
+        const airdrop = airdrops[index];
+        if (!airdrop) return;
+        editIndexInput.value = index;
+        getEl('projectName').value = airdrop.name;
+        getEl('ecosystem').value = airdrop.ecosystem;
+        getEl('status').value = airdrop.status;
+        getEl('wallet').value = airdrop.wallet;
+        getEl('tasks').value = airdrop.tasks;
+        getEl('link').value = airdrop.link;
+        screenshotBase64 = airdrop.screenshot || '';
+        if (screenshotBase64 && AppUtils.isValidBase64Image(screenshotBase64)) {
+            imagePreview.src = screenshotBase64;
+            imagePreview.classList.remove('hidden');
+            removeImageBtn.classList.remove('hidden');
+        } else {
+            screenshotBase64 = '';
+            imagePreview.classList.add('hidden');
+            removeImageBtn.classList.add('hidden');
+        }
+        formTitle.textContent = 'Edit Proyek';
+        submitBtn.textContent = 'Simpan Perubahan';
+        cancelBtn.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     // --- EVENT LISTENERS ---
     logoutBtn.addEventListener('click', handleLogout);
+
     airdropForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const editIndex = editIndexInput.value;
         const existingId = editIndex !== '' ? airdrops[editIndex].id : null;
-        const airdropData = AppUtils.createAirdropData({
+        const result = AppUtils.createAirdropData({
             name: getEl('projectName').value,
             ecosystem: getEl('ecosystem').value,
             status: getEl('status').value,
@@ -65,14 +155,87 @@ document.addEventListener('DOMContentLoaded', () => {
             link: getEl('link').value,
             screenshot: screenshotBase64
         }, existingId);
-        if (editIndex !== '') { airdrops[editIndex] = airdropData; } else { airdrops.unshift(airdropData); }
-        saveUserAirdrops(); renderAirdrops(); resetForm();
+
+        if (result.error) {
+            alert(result.error);
+            return;
+        }
+
+        if (editIndex !== '') {
+            airdrops[editIndex] = result.data;
+        } else {
+            airdrops.unshift(result.data);
+        }
+        saveUserAirdrops();
+        renderAirdrops();
+        resetForm();
     });
-    screenshotInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { screenshotBase64 = event.target.result; imagePreview.src = screenshotBase64; imagePreview.classList.remove('hidden'); removeImageBtn.classList.remove('hidden'); }; reader.readAsDataURL(file); } });
-    removeImageBtn.addEventListener('click', () => { screenshotBase64 = ''; imagePreview.src = ''; imagePreview.classList.add('hidden'); removeImageBtn.classList.add('hidden'); screenshotInput.value = ''; });
+
+    screenshotInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Hanya file gambar yang diperbolehkan.');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Ukuran file maksimal 5MB.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                screenshotBase64 = event.target.result;
+                imagePreview.src = screenshotBase64;
+                imagePreview.classList.remove('hidden');
+                removeImageBtn.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    removeImageBtn.addEventListener('click', () => {
+        screenshotBase64 = '';
+        imagePreview.src = '';
+        imagePreview.classList.add('hidden');
+        removeImageBtn.classList.add('hidden');
+        screenshotInput.value = '';
+    });
+
     cancelBtn.addEventListener('click', resetForm);
-    airdropTableBody.addEventListener('click', (e) => { if (e.target.classList.contains('edit-btn')) { startEdit(e.target.dataset.index); } if (e.target.classList.contains('delete-btn')) { if (confirm(`Yakin menghapus proyek "${airdrops[e.target.dataset.index].name}"?`)) { airdrops.splice(e.target.dataset.index, 1); saveUserAirdrops(); renderAirdrops(); resetForm(); } } });
-    filterButtonsContainer.addEventListener('click', (e) => { if (e.target.tagName === 'BUTTON') { currentFilter = e.target.dataset.filter; document.querySelectorAll('.filter-btn').forEach(btn => {btn.classList.remove('bg-blue-600', 'text-white'); btn.classList.add('bg-gray-700', 'hover:bg-gray-600', 'text-gray-300');}); e.target.classList.add('bg-blue-600', 'text-white'); e.target.classList.remove('bg-gray-700', 'hover:bg-gray-600', 'text-gray-300'); renderAirdrops(); } });
+
+    airdropTableBody.addEventListener('click', (e) => {
+        if (e.target.classList.contains('screenshot-thumb')) {
+            const idx = e.target.dataset.index;
+            if (airdrops[idx] && airdrops[idx].screenshot) {
+                showModal(airdrops[idx].screenshot);
+            }
+        }
+        if (e.target.classList.contains('edit-btn')) {
+            startEdit(e.target.dataset.index);
+        }
+        if (e.target.classList.contains('delete-btn')) {
+            const idx = e.target.dataset.index;
+            if (airdrops[idx] && confirm(`Yakin menghapus proyek "${airdrops[idx].name}"?`)) {
+                airdrops.splice(idx, 1);
+                saveUserAirdrops();
+                renderAirdrops();
+                resetForm();
+            }
+        }
+    });
+
+    filterButtonsContainer.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+            currentFilter = e.target.dataset.filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-700', 'hover:bg-gray-600', 'text-gray-300');
+            });
+            e.target.classList.add('bg-blue-600', 'text-white');
+            e.target.classList.remove('bg-gray-700', 'hover:bg-gray-600', 'text-gray-300');
+            renderAirdrops();
+        }
+    });
 
     // --- INISIALISASI HALAMAN APLIKASI ---
     const initializeApp = () => {
